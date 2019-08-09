@@ -21,12 +21,12 @@ func PullJobs(waitGroup *sync.WaitGroup, queueHandler QueueHandlerContract, emai
 
 	job, err := delivery.GetJob()
 	if err != nil {
-	    delivery.Reject()
+	    delivery.Reject(true)
 	    continue
 	}
 
 	emailHandler.SendEmail(job.GetId(), job.GetMessage())
 
-	delivery.Ack()
+	delivery.Ack(false)
     }
 }

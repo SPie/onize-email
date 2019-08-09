@@ -4,10 +4,12 @@ type EmailHandlerContract interface {
     SendEmail(identifier string, message Message) error
 }
 
-type EmailHandler struct {}
+type EmailHandler struct {
+    authUser AuthUserContract
+}
 
-func NewEmailHandler() EmailHandlerContract {
-    return EmailHandler{}
+func NewEmailHandler(authUser AuthUserContract) EmailHandlerContract {
+    return EmailHandler{authUser}
 }
 
 func (emailHandler EmailHandler) SendEmail(identifier string, message Message) error {
