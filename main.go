@@ -14,6 +14,12 @@ func main() {
     username := "guest"
     password := "guest"
     queueName := "email"
+    sender := "" //TODO
+    emailUsername := "" //TODO
+    emailPassword := "" //TODO
+    emailHost := "" //TODO
+    emailPort := "" //TODO
+    templatesDir := "templates"
 
     waitGroup := new(sync.WaitGroup)
 
@@ -21,7 +27,13 @@ func main() {
     failOnError(err, "")
     defer queueHandler.Close()
 
-    emailHandler := email.NewEmailHandler()
+    emailHandler := email.NewEmailHandler(
+	sender,
+	emailHost,
+	emailPort,
+	email.NewAuthUser(emailUsername, emailPassword, emailHost),
+	email.NewParser(templatesDir),
+    )
 
     for i := 1; i <= workersCount; i++ {
 	waitGroup.Add(1)
