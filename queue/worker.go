@@ -1,6 +1,7 @@
 package queue
 
 import (
+    "fmt"
     "sync"
 
     "github.com/spie/onize-email/email"
@@ -25,7 +26,12 @@ func PullJobs(waitGroup *sync.WaitGroup, queueHandler QueueHandlerContract, emai
 	    continue
 	}
 
-	emailHandler.SendEmail(job.GetId(), job.GetMessage())
+	err = emailHandler.SendEmail(job.GetName(), job.GetMessage())
+	if err != nil {
+	    fmt.Println(err)
+	    delivery.Reject()
+	    continue
+	}
 
 	delivery.Ack()
     }

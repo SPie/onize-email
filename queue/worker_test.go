@@ -73,8 +73,8 @@ func TestPullJobs(t *testing.T) {
     queueHandler := new(QueueHandlerMock)
     queueHandler.On("Consume").Return(deliveries, nil)
     emailHandler := new(EmailHandlerMock)
-    emailHandler.On("SendEmail", "Id1", job1.GetMessage()).Return(nil)
-    emailHandler.On("SendEmail", "Id2", job2.GetMessage()).Return(nil)
+    emailHandler.On("SendEmail", "Name", job1.GetMessage()).Return(nil)
+    emailHandler.On("SendEmail", "Name", job2.GetMessage()).Return(nil)
     internalWaitGroup := new(sync.WaitGroup)
     internalWaitGroup.Add(1)
 
@@ -83,8 +83,8 @@ func TestPullJobs(t *testing.T) {
 
     delivery1.AssertCalled(t, "Ack")
     delivery2.AssertCalled(t, "Ack")
-    emailHandler.AssertCalled(t, "SendEmail", "Id1", job1.GetMessage())
-    emailHandler.AssertCalled(t, "SendEmail", "Id2", job2.GetMessage())
+    emailHandler.AssertCalled(t, "SendEmail", "Name", job1.GetMessage())
+    emailHandler.AssertCalled(t, "SendEmail", "Name", job2.GetMessage())
 }
 
 func TestPullJobsWithErrorOnGetJob(t *testing.T) {
@@ -116,4 +116,28 @@ func TestPullJobsWithErrorOnConsume(t *testing.T) {
     emailHandler := new(EmailHandlerMock)
 
     assert.Panics(t, func () {PullJobs(new(sync.WaitGroup), queueHandler, emailHandler)})
+}
+
+func TestPullJobsWithErrorOnSendEmail(t *testing.T) {
+    job := NewJob("Id1", "Name", "DisplayName", email.NewMessage("example1@email.com", map[string]interface{}{"key1": "value1"}))
+    waitGroup := new(sync.WaitGroup)
+    waitGroup.Add(1)
+    deliveries := make(chan DeliveryContract, 1)
+    defer close(deliveries)
+    delivery := DeliveryMock{waitGroup: waitGroup}
+    delivery.On("GetJob").Return(job, nil)
+    delivery.On("Reject").Return(nil)
+    deliveries <- &delivery
+    queueHandler := new(QueueHandlerMock)
+    queueHandler.On("Consume").Return(deliveries, nil)
+    emailHandler := new(EmailHandlerMock)
+    emailHandler.On("SendEmail", "Name", job.GetMessage()).Return(errors.New("SendEmail error"))
+    internalWaitGroup := new(sync.WaitGroup)
+    internalWaitGroup.Add(1)
+
+    go PullJobs(internalWaitGroup, queueHandler, emailHandler)
+    waitGroup.Wait()
+
+    delivery.AssertNotCalled(t, "Ack")
+    delivery.AssertCalled(t, "Reject")
 }

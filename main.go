@@ -1,40 +1,32 @@
 package main
 
 import (
+    "os"
     "sync"
 
+    "github.com/joho/godotenv"
     "github.com/spie/onize-email/email"
     "github.com/spie/onize-email/queue"
 )
 
 func main() {
-    workersCount := 3
-    host := "127.0.0.1"
-    port := "5672"
-    username := "guest"
-    password := "guest"
-    queueName := "email"
-    sender := "" //TODO
-    emailUsername := "" //TODO
-    emailPassword := "" //TODO
-    emailHost := "" //TODO
-    emailPort := "" //TODO
-    templatesDir := "templates"
+    loadEnv()
 
     waitGroup := new(sync.WaitGroup)
 
-    queueHandler, err := queue.OpenQueue(host, port, username, password, queueName)
+    queueHandler, err := queue.OpenQueue(os.Getenv("QUEUE_HOST"), os.Getenv("QUEUE_PORT"), os.Getenv("QUEUE_USERNAME"), os.Getenv("QUEUE_PASSWORD"), os.Getenv("QUEUE_NAME"))
     failOnError(err, "")
     defer queueHandler.Close()
 
     emailHandler := email.NewEmailHandler(
-	sender,
-	emailHost,
-	emailPort,
-	email.NewAuthUser(emailUsername, emailPassword, emailHost),
-	email.NewParser(templatesDir),
+	os.Getenv("EMAIL_SENDER"),
+	os.Getenv("EMAIL_HOST"),
+	os.Getenv("EMAIL_PORT"),
+	email.NewAuthUser(os.Getenv("EMAIL_USERNAME"), os.Getenv("EMAIL_PASSWORD"), os.Getenv("EMAIL_HOST")),
+	email.NewParser(os.Getenv("TEMPLATES_DIRECTORY")),
     )
 
+    workersCount := 3 //TODO
     for i := 1; i <= workersCount; i++ {
 	waitGroup.Add(1)
 
@@ -42,6 +34,11 @@ func main() {
     }
 
     waitGroup.Wait()
+}
+
+func loadEnv() {
+    err := godotenv.Load()
+    failOnError(err, "")
 }
 
 func failOnError(err error, errorMessage string) {

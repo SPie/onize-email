@@ -27,7 +27,7 @@ func (parser ParserMock) Parse(templateName string, data map[string]interface{})
 }
 
 func TestCreateNewEmailHandler(t *testing.T) {
-    emailHandler := NewEmailHandler("example@domain.dev", "address", 1234, AuthUserMock{}, ParserMock{})
+    emailHandler := NewEmailHandler("example@domain.dev", "address", "1234", AuthUserMock{}, ParserMock{})
 
     assert.Implements(t, new(EmailHandlerContract), emailHandler)
 }

@@ -12,12 +12,12 @@ type EmailHandlerContract interface {
 type EmailHandler struct {
     sender string
     address string
-    port int
+    port string
     authUser AuthUserContract
     parser ParserContract
 }
 
-func NewEmailHandler(sender string, address string, port int, authUser AuthUserContract, parser ParserContract) EmailHandlerContract {
+func NewEmailHandler(sender string, address string, port string, authUser AuthUserContract, parser ParserContract) EmailHandlerContract {
     return EmailHandler{sender, address, port, authUser, parser}
 }
 
@@ -27,7 +27,7 @@ func (emailHandler EmailHandler) SendEmail(identifier string, message Message) e
 	return err
     }
 
-    address := fmt.Sprintf("%s:%d", emailHandler.address, emailHandler.port)
+    address := fmt.Sprintf("%s:%s", emailHandler.address, emailHandler.port)
     err = smtp.SendMail(address, emailHandler.authUser.GetSMTPAuth(), "", []string{message.GetRecipient()}, text)
     if err != nil {
 	return err
