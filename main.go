@@ -18,12 +18,13 @@ func main() {
     failOnError(err, "")
     defer queueHandler.Close()
 
+    failOnError(err, "")
+
     emailHandler := email.NewEmailHandler(
 	os.Getenv("EMAIL_SENDER"),
 	os.Getenv("EMAIL_HOST"),
 	os.Getenv("EMAIL_PORT"),
 	email.NewAuthUser(os.Getenv("EMAIL_USERNAME"), os.Getenv("EMAIL_PASSWORD"), os.Getenv("EMAIL_HOST")),
-	email.NewParser(os.Getenv("TEMPLATES_DIRECTORY")),
     )
 
     workersCount := 3 //TODO

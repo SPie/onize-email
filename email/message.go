@@ -2,13 +2,13 @@ package email
 
 type Message struct {
     Recipient string `json:"recipient"`
-    Data map[string]interface{} `json:"data"`
+    Content string `json:"content"`
 }
 
-func NewMessage(recipient string, data map[string]interface{}) Message {
+func NewMessage(recipient string, content string) Message {
     return Message{
 	Recipient: recipient,
-	Data: data,
+	Content: content,
     }   
 }
 
@@ -16,6 +16,6 @@ func (message Message) GetRecipient() string {
     return message.Recipient
 }
 
-func (message Message) GetData() map[string]interface{} {
-    return message.Data
+func (message Message) GetContent() string {
+    return message.Content
 }

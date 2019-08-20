@@ -14,21 +14,15 @@ type EmailHandler struct {
     address string
     port string
     authUser AuthUserContract
-    parser ParserContract
 }
 
-func NewEmailHandler(sender string, address string, port string, authUser AuthUserContract, parser ParserContract) EmailHandlerContract {
-    return EmailHandler{sender, address, port, authUser, parser}
+func NewEmailHandler(sender string, address string, port string, authUser AuthUserContract) EmailHandlerContract {
+    return EmailHandler{sender, address, port, authUser}
 }
 
 func (emailHandler EmailHandler) SendEmail(identifier string, message Message) error {
-    text, err := emailHandler.parser.Parse(identifier, message.GetData())
-    if err != nil {
-	return err
-    }
-
     address := fmt.Sprintf("%s:%s", emailHandler.address, emailHandler.port)
-    err = smtp.SendMail(address, emailHandler.authUser.GetSMTPAuth(), "", []string{message.GetRecipient()}, text)
+    err := smtp.SendMail(address, emailHandler.authUser.GetSMTPAuth(), "", []string{message.GetRecipient()}, []byte(message.GetContent()))
     if err != nil {
 	return err
     }
