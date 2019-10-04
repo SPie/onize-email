@@ -2,6 +2,7 @@ package main
 
 import (
     "os"
+    "strconv"
     "sync"
 
     "github.com/joho/godotenv"
@@ -27,7 +28,11 @@ func main() {
 	email.NewAuthUser(os.Getenv("EMAIL_USERNAME"), os.Getenv("EMAIL_PASSWORD"), os.Getenv("EMAIL_HOST")),
     )
 
-    workersCount := 3 //TODO
+    workersCount, err := strconv.Atoi(os.Getenv("WORKERS_COUNT"))
+    if err != nil {
+	failOnError(err, "")
+    }
+
     for i := 1; i <= workersCount; i++ {
 	waitGroup.Add(1)
 
