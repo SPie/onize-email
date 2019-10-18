@@ -5,9 +5,10 @@ import (
     "sync"
 
     "github.com/spie/onize-email/email"
+    "github.com/spie/onize-email/log"
 )
 
-func PullJobs(waitGroup *sync.WaitGroup, queueHandler QueueHandlerContract, emailHandler email.EmailHandlerContract) {
+func PullJobs(waitGroup *sync.WaitGroup, queueHandler QueueHandlerContract, emailHandler email.EmailHandlerContract, logRepo log.LogRepository) {
     deliveries, err := queueHandler.Consume()
     if err != nil {
 	panic("queueHandler.Consume() failed")
@@ -34,5 +35,8 @@ func PullJobs(waitGroup *sync.WaitGroup, queueHandler QueueHandlerContract, emai
 	}
 
 	delivery.Ack()
+
+	log := log.NewLog(job.Id, job.Name, job.Message.Recipient, job.Message.Content);
+	logRepo.Create(&log)
     }
 }

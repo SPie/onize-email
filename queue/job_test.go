@@ -9,7 +9,7 @@ import (
 )
 
 func TestCreateJob(t *testing.T) {
-    message := email.Message{Recipient: "Recipient", Data: map[string]interface{}{"key": "value"}}
+    message := email.Message{Recipient: "Recipient", Content: "Content"}
     job := NewJob("Id", "JobName", "Display name", message)
     assert.Equal(t, "Id", job.GetId())
     assert.Equal(t, "JobName", job.GetName())
@@ -24,9 +24,7 @@ func TestParseJobFromJson(t *testing.T) {
 	"displayName": "Display name",
 	"data": {
 	    "recipient": "Recipient",
-	    "data" : {
-		"key": "value"
-	    }
+	    "content" : "Content"
 	}
     }`
     var job Job
@@ -35,5 +33,5 @@ func TestParseJobFromJson(t *testing.T) {
     assert.Equal(t, "Id", job.GetId())
     assert.Equal(t, "JobName", job.GetName())
     assert.Equal(t, "Display name", job.GetDisplayName())
-    assert.Equal(t, email.NewMessage("Recipient", map[string]interface{}{"key": "value"}), job.GetMessage())
+    assert.Equal(t, email.NewMessage("Recipient", "Content"), job.GetMessage())
 }
